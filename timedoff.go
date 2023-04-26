@@ -18,7 +18,7 @@ type CallbackT struct {
 type TimedOff struct {
 	mtx      *sync.Mutex
 	on       int32
-	duration int64 // in seconds
+	duration time.Duration
 	cb       *CallbackT
 	ctx      context.Context
 	cancel   context.CancelFunc
@@ -40,10 +40,7 @@ func (t *TimedOff) On() {
 func (t *TimedOff) setDeadline() {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
-	t.ctx, t.cancel = context.WithTimeout(
-		context.Background(),
-		time.Second*time.Duration(t.duration),
-	)
+	t.ctx, t.cancel = context.WithTimeout(context.Background(), t.duration)
 }
 
 func (t *TimedOff) run() {
@@ -67,17 +64,16 @@ loop:
 	}
 }
 
-// New creates a TimedOff object with 'duration' in seconds.
-func New(duration int64, cb ...*CallbackT) *TimedOff {
-	secs := duration
-	if secs == 0 {
-		secs = 30
-	}
-
+// New creates a TimedOff object with a 5s duration by default.
+func New(duration time.Duration, cb ...*CallbackT) *TimedOff {
 	to := TimedOff{
 		mtx:      &sync.Mutex{},
-		duration: secs,
+		duration: duration,
 		ch:       make(chan error),
+	}
+
+	if to.duration == 0 {
+		to.duration = time.Second * 5
 	}
 
 	if len(cb) > 0 {
