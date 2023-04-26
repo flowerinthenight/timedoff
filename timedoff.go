@@ -40,6 +40,8 @@ func (t *TimedOff) On() {
 func (t *TimedOff) setDeadline() {
 	t.mtx.Lock()
 	defer t.mtx.Unlock()
+
+	// NOTE: Previous cancel overwritten; will remain until timeout.?
 	t.ctx, t.cancel = context.WithTimeout(context.Background(), t.duration)
 }
 
