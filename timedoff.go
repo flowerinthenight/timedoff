@@ -12,7 +12,7 @@ type CallbackT struct {
 	Params   interface{}
 }
 
-// TimedOff is an object that we can use as a generic atomic on/off switch that
+// TimedOff is an object that can be used as a generic atomic on/off switch that
 // automatically turns itself off after a specified time. Similar to a time.Timer
 // object but built for concurrent use.
 type TimedOff struct {
